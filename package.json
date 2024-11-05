@@ -10,8 +10,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "mysql2": "^3.11.3",
     "playwright": "^1.47.2",
     "playwright-chromium": "^1.47.2",
-    "scraping": "file:"
+    "scraping": "file:",
+    "tesseract.js": "^5.1.1"
   }
 }

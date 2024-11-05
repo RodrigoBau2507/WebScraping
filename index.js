@@ -1,5 +1,7 @@
 const { chromium } = require('playwright');
 const readline = require('readline');
+const mysql = require('mysql2/promise');
+const { log } = require('console');
 
 // Creamos una interfaz para capturar la entrada del usuario
 const rl = readline.createInterface({
@@ -8,6 +10,16 @@ const rl = readline.createInterface({
 });
 
 (async () => {
+    // Conección de la base de Datos
+    const connection = await mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        password: '2590$',
+        database: 'amazon_data',
+        port:'3307'
+    })
+
+
     // Preguntamos al usuario qué desea buscar
     rl.question('¿Qué deseas buscar en Amazon? ', async (searchQuery) => {
         const browser = await chromium.launch({ headless: false });
@@ -44,10 +56,16 @@ const rl = readline.createInterface({
             console.log('No se encontraron artículos. Asegúrate de que la búsqueda sea correcta.');
         } else {
             console.log(articulos);
+            for (const articulo of articulos){
+                const{title, precio, url, imagen} = articulo;
+                await connection.execute('INSERT INTO articulos (title, precio, url, imagen) VALUES (?, ?, ?, ?)', [title, precio, url, imagen])
+            }
         }
-
+        console.log('Datos almacenados en la base');
+        
         // Agregamos un tiempo de espera para que el usuario vea los resultados antes de cerrar el navegador
         await page.waitForTimeout(5000); // Esperamos 5 segundos antes de cerrar
+        await connection.end();
         await browser.close(); // Cerramos el navegador
 
         // Cerramos la interfaz de readline
